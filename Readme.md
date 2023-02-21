@@ -1,3 +1,10 @@
+# Личный проект «What To Watch»
+
+* Студент: [Kirill Podryadov](https://up.htmlacademy.ru/php/14/user/1622797).
+* Наставник: [Сергей Парфенов](https://htmlacademy.ru/profile/id926645).
+
+---
+
 # Руководство по работе с проектом
 
 Данный проект создан с помощью [Create React App](https://github.com/facebook/create-react-app).

@@ -1,0 +1,18 @@
+{
+    "name": "kiipod/what-to-watch",
+    "description": "Online cinema",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Kiipod\\WhatToWatch\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "kiipod",
+            "email": "iamkir90@hotmail.com"
+        }
+    ],
+    "require": {}
+}

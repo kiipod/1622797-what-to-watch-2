@@ -2,11 +2,11 @@
 
 require_once('vendor/autoload.php');
 
-use src\repositories\MovieRepository;
 use src\repositories\OmdbHttpClient;
+use src\Services\GetFilmService;
 
 $client = new OmdbHttpClient();
-$repository = new MovieRepository($client);
+$services = new GetFilmService($client);
 
-$movies = $repository->getMoviesInfo('tt3896198');
+$movies = $services->getFilm('tt3896198');
 var_dump($movies);

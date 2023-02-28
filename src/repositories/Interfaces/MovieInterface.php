@@ -4,5 +4,5 @@ namespace src\repositories\Interfaces;
 
 interface MovieInterface
 {
-    public function getMoviesInfo($filmId);
+    public function getFilm($filmId);
 }

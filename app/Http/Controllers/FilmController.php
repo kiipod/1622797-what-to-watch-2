@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class FilmsController extends Controller
+class FilmController extends Controller
 {
     /**
      * Display a listing of the resource.

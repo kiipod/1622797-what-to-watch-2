@@ -2,23 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\Success;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
     /**
-     * @return void
+     * @return Success
      */
     public function index()
     {
-        //
+        return new Success();
     }
 
     /**
-     * @return void
+     * @param Request $request
+     * @return Success
      */
-    public function update()
+    public function update(Request $request)
     {
-        //
+        return new Success();
     }
 }

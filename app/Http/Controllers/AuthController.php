@@ -3,27 +3,27 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use app\Http\Responses\Success;
 
 class AuthController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Success
      */
-    public function login()
+    public function login(Request $request)
     {
-        //
+        return new Success();
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @return Response
+     * @return Success
      */
     public function logout()
     {
-        //
+        return new Success();
     }
 }

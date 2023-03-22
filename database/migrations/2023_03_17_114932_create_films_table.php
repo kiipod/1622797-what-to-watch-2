@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('films', function (Blueprint $table) {
             $table->id();
@@ -20,18 +20,15 @@ return new class extends Migration
             $table->string('preview_image', 255);
             $table->string('background_image', 255);
             $table->char('background_color', 9);
-            $table->unsignedInteger('released');
+            $table->dateTime('released');
             $table->string('description', 1000);
-            $table->unsignedInteger('run_time');
+            $table->smallInteger('run_time')->unsigned();
             $table->string('video_link', 255);
             $table->string('preview_video_link', 255);
             $table->string('imdb_id')->unique();
             $table->set('status', ['pending', 'moderate', 'ready'])->nullable();
             $table->decimal('rating', 2, 1);
             $table->timestamps();
-            $table->timestamp('created_at')->nullable();
-            $table->timestamp('updated_at')->nullable();
-            $table->softDeletes();
         });
     }
 
@@ -40,7 +37,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('films');
     }

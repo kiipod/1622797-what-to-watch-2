@@ -13,21 +13,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('favorites', function (Blueprint $table) {
+        Schema::create('film_director', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')
-                ->references('id')
-                ->on('users')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
             $table->unsignedBigInteger('film_id');
             $table->foreign('film_id')
                 ->references('id')
                 ->on('films')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
-            $table->index(['user_id', 'film_id']);
+            $table->unsignedBigInteger('director_id');
+            $table->foreign('director_id')
+                ->references('id')
+                ->on('directors')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+            $table->index(['film_id', 'director_id']);
             $table->timestamps();
         });
     }
@@ -39,6 +39,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('favorites');
+        Schema::dropIfExists('films_director');
     }
 };

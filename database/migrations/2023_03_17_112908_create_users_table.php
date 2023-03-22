@@ -11,19 +11,18 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name', 128);
             $table->string('email', 255)->unique();
-            $table->string('email_verified_at')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
             $table->string('password', 255);
             $table->rememberToken();
             $table->string('avatar_url', 255);
-            $table->boolean('admin')->default(0);
+            $table->boolean('is_moderator')->default(0);
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -32,7 +31,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('users');
     }

@@ -2,28 +2,40 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\LoginRequest;
 use app\Http\Responses\Success;
+use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Метод отвечает за вход пользователя на ресурс
      *
+     * @param LoginRequest $request
      * @return Success
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request): Success
     {
-        return new Success();
+        if (!Auth::attempt($request->validated())) {
+            abort(Response::HTTP_UNAUTHORIZED, trans('auth.failed'));
+        }
+
+        $token = Auth::user()->createToken('auth-token');
+
+        $data = ['token' => $token->plainTextToken];
+
+        return new Success($data);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Метод отвечает за выход пользователя из ресурса
      *
      * @return Success
      */
-    public function logout()
+    public function logout(): Success
     {
-        return new Success();
+        Auth::user()->tokens()->delete();
+        return new Success(null, Response::HTTP_NO_CONTENT);
     }
 }

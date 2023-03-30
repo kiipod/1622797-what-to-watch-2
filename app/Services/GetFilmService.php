@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use src\repositories\Interfaces\MovieInterface;
-use src\repositories\OmdbHttpClient;
+use App\Services\Interfaces\MovieInterface;
+use App\Services\HttpClients\OmdbHttpClient;
 
 class GetFilmService implements MovieInterface
 {

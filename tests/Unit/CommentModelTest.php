@@ -7,14 +7,15 @@ use App\Models\Film;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class CommentModelTest extends TestCase
 {
     use RefreshDatabase;
 
     /**
-     * Тест проверяет наличие имени автора комментария
+     * Тест проверяет что у комментария есть специальное свойство для возврата имени автора и это свойство
+     * действительно содержит имя пользователя, который написал данный комментарий
      *
      * @return void
      */
@@ -33,7 +34,7 @@ class CommentModelTest extends TestCase
     }
 
     /**
-     * Тест для проверки оставленных анонимных комментариев и дефолтного имени
+     * Тест для проверки анонимных комментариев, должен выводиться дефолтный текст с именем автора.
      *
      * @return void
      */
@@ -50,6 +51,6 @@ class CommentModelTest extends TestCase
 
         $author = $comment->user->name;
 
-        $this->assertEquals('Гость', $author);
+        $this->assertEquals('Автор неизвестен', $author);
     }
 }

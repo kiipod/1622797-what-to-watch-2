@@ -27,4 +27,18 @@ class UserFactory extends Factory
             'avatar_url' => $this->faker->image()
         ];
     }
+
+    /**
+     * Метод устанавливает пользователю права Модератора
+     *
+     * @return UserFactory
+     */
+    public function canModerator(): UserFactory
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'is_moderator' => true
+            ];
+        });
+    }
 }

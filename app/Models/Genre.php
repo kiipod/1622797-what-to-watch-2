@@ -50,4 +50,14 @@ class Genre extends Model
             'genre_id'
         );
     }
+
+    /**
+     * Получение списка жанров
+     *
+     * @return Collection
+     */
+    public function getAllGenre(): Collection
+    {
+        return $this->all();
+    }
 }

@@ -2,30 +2,42 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\GenreRequest;
 use App\Http\Responses\Success;
-use Illuminate\Http\Request;
+use App\Models\Genre;
+use App\Services\GenreUpdateServices;
 
 class GenreController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Получение списка жанров
      *
      * @return Success
      */
-    public function index()
+    public function index(): Success
     {
-        return new Success();
+        $genreClass = new Genre();
+        $genres = $genreClass->getAllGenre();
+
+        return new Success(data: ['genres' => $genres]);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Обновление названия жанров. Метод доступен только модератору
      *
-     * @param Request $request
-     * @param  int  $id
+     * @param GenreRequest $request
+     * @param Genre $genre
      * @return Success
      */
-    public function update(Request $request, $id)
+    public function update(GenreRequest $request, Genre $genre): Success
     {
-        return new Success();
+        $updatedGenreService = new GenreUpdateServices();
+
+        $validated = $request->validated();
+        $genreId = $genre->id;
+
+        $updatedGenre = $updatedGenreService->genreUpdate($genreId, $validated['title']);
+
+        return new Success(data: ['updatedGenre' => $updatedGenre]);
     }
 }

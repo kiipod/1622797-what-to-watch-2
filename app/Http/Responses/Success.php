@@ -9,6 +9,6 @@ class Success extends Base
      */
     protected function makeResponseData(): ?array
     {
-        return $this->prepareData();
+        return ['data' => $this->prepareData()];
     }
 }

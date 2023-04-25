@@ -29,8 +29,7 @@ class FilmFactory extends Factory
             'video_link' => $this->faker->url(),
             'preview_video_link' => $this->faker->url(),
             'imdb_id' => 'tt' . $this->faker->unique()->randomNumber(7, true),
-            'status' => $this->faker->randomElement(['pending', 'moderate', 'ready']),
-            'rating' => $this->faker->randomFloat(2, 1, 10),
+            'status' => $this->faker->randomElement(['pending', 'moderate', 'ready'])
         ];
     }
 }

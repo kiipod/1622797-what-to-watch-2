@@ -24,21 +24,8 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => $this->faker->password(),
             'remember_token' => Str::random(10),
-            'avatar_url' => $this->faker->image()
+            'avatar_url' => $this->faker->image(),
+            'user_role' => 1
         ];
-    }
-
-    /**
-     * Метод устанавливает пользователю права Модератора
-     *
-     * @return UserFactory
-     */
-    public function canModerator(): UserFactory
-    {
-        return $this->state(function (array $attributes) {
-            return [
-                'is_moderator' => true
-            ];
-        });
     }
 }

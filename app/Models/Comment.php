@@ -62,7 +62,7 @@ class Comment extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class)
-            ->withDefault(['name' => 'Автор неизвестен']);
+            ->withDefault(['name' => 'Гость']);
     }
 
     /**

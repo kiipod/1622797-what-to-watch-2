@@ -53,6 +53,7 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @property-read int|null $notifications_count
  * @property-read Collection<int, PersonalAccessToken> $tokens
  * @property-read int|null $tokens_count
+ * @property-read UserRole|null $userRole
  * @mixin Eloquent
  */
 class User extends Authenticatable
@@ -61,6 +62,7 @@ class User extends Authenticatable
     use HasApiTokens;
     use Notifiable;
 
+    public const DEFAULT_ROLE = 'user';
     public const MODERATOR_ROLE = 'moderator';
 
     protected $table = 'users';

@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Genre;
 use App\Models\User;
-use App\Models\UserRole;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -27,7 +26,8 @@ class GenreRouteTest extends TestCase
                 'data' => [
                     'genres' => [['id', 'title']]
                     ]
-            ]);    }
+            ]);
+    }
 
     /**
      * Тест на проверку, что модератор может редактировать жанры
@@ -37,10 +37,7 @@ class GenreRouteTest extends TestCase
     public function test_can_update_genre_by_moderator()
     {
         $genre = Genre::factory()->create();
-        $user = User::factory()
-            ->create([
-                'role' => UserRole::whereRole(User::MODERATOR_ROLE)->value('id'),
-            ]);
+        $user = User::factory()->moderator()->create();
 
         $newGenre = 'Action';
         $genreId = $genre->id;
@@ -80,9 +77,7 @@ class GenreRouteTest extends TestCase
     public function test_not_update_genre_by_user()
     {
         $genre = Genre::factory()->create();
-        $user = User::factory()->create([
-            'role' => UserRole::whereRole(User::DEFAULT_ROLE)->value('id'),
-        ]);
+        $user = User::factory()->create();
 
         $newGenre = 'Action';
         $genreId = $genre->id;

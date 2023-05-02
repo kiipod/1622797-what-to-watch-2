@@ -19,11 +19,7 @@ class CommentPolicy
      */
     public function update(User $user, Comment $comment): bool
     {
-        if ($user->userRole->role === User::MODERATOR_ROLE) {
-            return true;
-        }
-
-        return $user->id === $comment->user_id;
+        return ($user->is_moderator === true || $user->id === $comment->user_id);
     }
 
     /**
@@ -35,10 +31,6 @@ class CommentPolicy
      */
     public function delete(User $user, Comment $comment): bool
     {
-        if ($user->userRole->role === User::MODERATOR_ROLE) {
-            return true;
-        }
-
-        return $user->id === $comment->user_id;
+        return ($user->is_moderator === true || $user->id === $comment->user_id);
     }
 }

@@ -15,6 +15,6 @@ class GenrePolicy
      */
     public function update(User $user): Response|bool
     {
-        return $user->userRole->role === User::MODERATOR_ROLE;
+        return $user->is_moderator === true;
     }
 }

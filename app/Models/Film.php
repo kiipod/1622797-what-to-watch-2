@@ -138,14 +138,4 @@ class Film extends Model
     {
         return $this->hasMany(Comment::class);
     }
-
-    /**
-     * Получение рейтинга фильма как среднего арифметического
-     *
-     * @return float
-     */
-    public function getRating(): float
-    {
-        return round($this->avg('rating'), 1);
-    }
 }

@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\FailPageNotFound;
 use App\Http\Responses\Success;
+use App\Services\FilmServices;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FilmController extends Controller
 {
@@ -29,14 +32,26 @@ class FilmController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Метод отвечает за показ страницы с фильмом
      *
-     * @param  int  $id
-     * @return Success
+     * @param int $filmId
+     * @return Success|FailPageNotFound|bool
      */
-    public function show($id)
+    public function show(int $filmId): Success|FailPageNotFound|bool
     {
-        return new Success();
+        $filmServices = new FilmServices();
+        $film = $filmServices->findById($filmId);
+        if (!$film) {
+            return new FailPageNotFound();
+        }
+
+        $authUser = Auth::user();
+        if ($authUser) {
+            return (bool)$authUser->favorites()
+                ->where('id', '=', $filmId)->first();
+        }
+
+        return new Success(data: $film);
     }
 
     /**
@@ -52,13 +67,16 @@ class FilmController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Метод отвечает за показ похожих фильмов
      *
-     * @param  int  $id
+     * @param int $filmId
      * @return Success
      */
-    public function getSimilar($id)
+    public function getSimilar(int $filmId): Success
     {
-        return new Success();
+        $filmServices = new FilmServices();
+        $similarFilms = $filmServices->getSimilarFilms($filmId);
+
+        return new Success(data: $similarFilms);
     }
 }

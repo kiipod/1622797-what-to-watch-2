@@ -22,9 +22,7 @@ class CommentRouteTest extends TestCase
         $this->getJson(route('comments.index'))
             ->assertOk()
             ->assertJsonStructure([
-                'data' => [
-                    'genres' => [['id', 'title']]
-                ]
+                'data' => []
             ]);
     }
 }

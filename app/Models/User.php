@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Eloquent;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -28,7 +27,7 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @property string $password
  * @property string|null $remember_token
  * @property string $avatar_url
- * @property int $role
+ * @property bool $is_moderator
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @method static Builder|User newModelQuery()
@@ -39,11 +38,11 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @method static Builder|User whereEmail($value)
  * @method static Builder|User whereEmailVerifiedAt($value)
  * @method static Builder|User whereId($value)
- * @method static Builder|User whereRole($value)
  * @method static Builder|User whereName($value)
  * @method static Builder|User wherePassword($value)
  * @method static Builder|User whereRememberToken($value)
  * @method static Builder|User whereUpdatedAt($value)
+ * @method static Builder|User whereIsModerator($value)
  * @property-read Collection<int, Film> $favorites
  * @property-read int|null $favorites_count
  * @property-read Collection<int, Comment> $comments
@@ -53,7 +52,6 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @property-read int|null $notifications_count
  * @property-read Collection<int, PersonalAccessToken> $tokens
  * @property-read int|null $tokens_count
- * @property-read UserRole|null $userRole
  * @mixin Eloquent
  */
 class User extends Authenticatable
@@ -62,13 +60,10 @@ class User extends Authenticatable
     use HasApiTokens;
     use Notifiable;
 
-    public const DEFAULT_ROLE = 'user';
-    public const MODERATOR_ROLE = 'moderator';
-
     protected $table = 'users';
 
     protected $attributes = [
-        'role' => 1
+        'is_moderator' => false
     ];
 
     protected $fillable = [
@@ -109,15 +104,5 @@ class User extends Authenticatable
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
-    }
-
-    /**
-     * Получение роли пользователя
-     *
-     * @return BelongsTo
-     */
-    public function userRole(): BelongsTo
-    {
-        return $this->belongsTo(UserRole::class);
     }
 }

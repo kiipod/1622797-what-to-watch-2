@@ -21,12 +21,7 @@ return new class extends Migration
             $table->string('password', 255);
             $table->rememberToken();
             $table->string('avatar_url', 255);
-            $table->unsignedBigInteger('role')->default(1);
-            $table->foreign('role')
-                ->references('id')
-                ->on('user_roles')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
+            $table->boolean('is_moderator')->default(0);
             $table->timestamps();
         });
     }

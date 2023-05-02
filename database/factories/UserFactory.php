@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\User;
-use App\Models\UserRole;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -27,5 +26,19 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
             'avatar_url' => $this->faker->image()
         ];
+    }
+
+    /**
+     * Установка роли модератор пользователю.
+     *
+     * @return UserFactory
+     */
+    public function moderator(): UserFactory
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'is_moderator' => true
+            ];
+        });
     }
 }

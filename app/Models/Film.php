@@ -29,6 +29,7 @@ use Database\Factories\FilmFactory;
  * @property string $imdb_id
  * @property mixed|null $status
  * @property string $rating
+ * @property int|null $scores_count
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @method static Builder|Film newModelQuery()
@@ -61,6 +62,7 @@ use Database\Factories\FilmFactory;
  * @property-read Collection<int, User> $users
  * @property-read int|null $users_count
  * @method static FilmFactory factory($count = null, $state = [])
+ * @method static Builder|Film whereScoresCount($value)
  * @mixin Eloquent
  */
 class Film extends Model
@@ -68,6 +70,25 @@ class Film extends Model
     use HasFactory;
 
     protected $table = 'films';
+
+    public $fillable = [
+        'rating',
+        'scores_count',
+        'title',
+        'poster_image',
+        'preview_image',
+        'background_image',
+        'background_color',
+        'video_link',
+        'preview_video_link',
+        'description',
+        'directors',
+        'actors',
+        'run_time',
+        'released',
+        'status',
+        'imdb_id'
+    ];
 
     /**
      * Получение пользователей у которых фильм в Избранном

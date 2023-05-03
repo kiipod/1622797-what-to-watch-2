@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AddFilmRequest;
+use App\Http\Requests\UpdateFilmRequest;
 use App\Http\Responses\FailPageNotFound;
 use App\Http\Responses\Success;
 use App\Services\FilmServices;
@@ -11,22 +13,38 @@ use Illuminate\Support\Facades\Auth;
 class FilmController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Метод отвечает за показ главной страницы с фильмами
      *
+     * @param Request $request
      * @return Success
      */
-    public function index()
+    public function index(Request $request): Success
     {
-        return new Success();
+        $params = $request->all();
+        $authUser = $request->user('sanctum');
+
+        if (
+            isset($queryParams['status']) &&
+            $queryParams['status'] !== FilmServices::FILM_DEFAULT_STATUS &&
+            ($authUser === null ||
+                $authUser->is_moderator === false)
+        ) {
+            $queryParams['status'] = FilmServices::FILM_DEFAULT_STATUS;
+        }
+
+        $filmServices = new FilmServices();
+        $films = $filmServices->getFilteredFilms($params);
+
+        return new Success(data: $films);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param Request $request
+     * @param AddFilmRequest $request
      * @return Success
      */
-    public function store(Request $request)
+    public function store(AddFilmRequest $request)
     {
         return new Success();
     }
@@ -40,7 +58,7 @@ class FilmController extends Controller
     public function show(int $filmId): Success|FailPageNotFound|bool
     {
         $filmServices = new FilmServices();
-        $film = $filmServices->findById($filmId);
+        $film = $filmServices->getFilmById($filmId);
         if (!$film) {
             return new FailPageNotFound();
         }
@@ -57,11 +75,11 @@ class FilmController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param Request $request
-     * @param  int  $id
+     * @param UpdateFilmRequest $request
+     * @param int $filmId
      * @return Success
      */
-    public function update(Request $request, $id)
+    public function update(UpdateFilmRequest $request, int $filmId): Success
     {
         return new Success();
     }

@@ -15,7 +15,7 @@ use Database\Factories\GenreFactory;
  * App\Models\Genre
  *
  * @property int $id
- * @property string $title
+ * @property string $genre
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Collection<int, Film> $films

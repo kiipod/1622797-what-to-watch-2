@@ -24,7 +24,7 @@ class GenreRouteTest extends TestCase
             ->assertOk()
             ->assertJsonStructure([
                 'data' => [
-                    'genres' => [['id', 'title']]
+                    'genres' => [['id', 'genre']]
                     ]
             ]);
     }
@@ -43,11 +43,11 @@ class GenreRouteTest extends TestCase
         $genreId = $genre->id;
 
         $this->actingAs($user)
-            ->patchJson('/api/genres/' . $genreId, ['title' => $newGenre])
+            ->patchJson('/api/genres/' . $genreId, ['genre' => $newGenre])
             ->assertOk()
             ->assertJsonStructure([
                 'data' => [
-                    'updatedGenre' => ['id', 'title']
+                    'updatedGenre' => ['id', 'genre']
                 ]
             ]);
     }
@@ -64,7 +64,7 @@ class GenreRouteTest extends TestCase
         $newGenre = 'Action';
         $genreId = $genre->id;
 
-        $this->patchJson('/api/genres/' . $genreId, ['title' => $newGenre])
+        $this->patchJson('/api/genres/' . $genreId, ['genre' => $newGenre])
             ->assertUnauthorized()
             ->assertJsonStructure(['message']);
     }
@@ -83,7 +83,7 @@ class GenreRouteTest extends TestCase
         $genreId = $genre->id;
 
         $this->actingAs($user)
-            ->patchJson('/api/genres/' . $genreId, ['title' => $newGenre])
+            ->patchJson('/api/genres/' . $genreId, ['genre' => $newGenre])
             ->assertForbidden()
             ->assertJsonStructure(['message']);
     }

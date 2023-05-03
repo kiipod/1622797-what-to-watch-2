@@ -26,6 +26,8 @@ class FilmFactory extends Factory
             'released' => $this->faker->dateTime(),
             'description' => $this->faker->text(),
             'run_time' => $this->faker->numberBetween(30, 200),
+            'rating' => $this->faker->randomFloat(1, 3, 9),
+            'scores_count' => $this->faker->numberBetween(5, 500),
             'video_link' => $this->faker->url(),
             'preview_video_link' => $this->faker->url(),
             'imdb_id' => 'tt' . $this->faker->unique()->randomNumber(7, true),

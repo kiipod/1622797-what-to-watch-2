@@ -6,7 +6,6 @@ use App\Models\Genre;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Laravel\Sanctum\Sanctum;
 
 class GenreRouteTest extends TestCase
 {
@@ -25,7 +24,7 @@ class GenreRouteTest extends TestCase
             ->assertOk()
             ->assertJsonStructure([
                 'data' => [
-                    'genres' => [['id', 'title']]
+                    'genres' => [['id', 'genre']]
                     ]
             ]);
     }
@@ -38,17 +37,17 @@ class GenreRouteTest extends TestCase
     public function test_can_update_genre_by_moderator()
     {
         $genre = Genre::factory()->create();
-        $user = Sanctum::actingAs(User::factory()->canModerator()->create());
+        $user = User::factory()->moderator()->create();
 
         $newGenre = 'Action';
         $genreId = $genre->id;
 
         $this->actingAs($user)
-            ->patchJson('/api/genres/' . $genreId, ['title' => $newGenre])
+            ->patchJson('/api/genres/' . $genreId, ['genre' => $newGenre])
             ->assertOk()
             ->assertJsonStructure([
                 'data' => [
-                    'updatedGenre' => ['id', 'title']
+                    'updatedGenre' => ['id', 'genre']
                 ]
             ]);
     }
@@ -65,7 +64,7 @@ class GenreRouteTest extends TestCase
         $newGenre = 'Action';
         $genreId = $genre->id;
 
-        $this->patchJson('/api/genres/' . $genreId, ['title' => $newGenre])
+        $this->patchJson('/api/genres/' . $genreId, ['genre' => $newGenre])
             ->assertUnauthorized()
             ->assertJsonStructure(['message']);
     }
@@ -84,7 +83,7 @@ class GenreRouteTest extends TestCase
         $genreId = $genre->id;
 
         $this->actingAs($user)
-            ->patchJson('/api/genres/' . $genreId, ['title' => $newGenre])
+            ->patchJson('/api/genres/' . $genreId, ['genre' => $newGenre])
             ->assertForbidden()
             ->assertJsonStructure(['message']);
     }

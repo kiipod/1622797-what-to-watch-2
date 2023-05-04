@@ -42,7 +42,7 @@ class UserRequest extends FormRequest
                 'min:8',
                 'confirmed',
             ],
-            'file' => 'nullable|image|max:10240'
+            'avatar_url' => 'nullable|image|max:10240'
         ];
     }
 

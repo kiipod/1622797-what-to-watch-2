@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('preview_image', 255);
             $table->string('background_image', 255);
             $table->char('background_color', 9);
+            $table->float('rating')->nullable();
+            $table->integer('scores_count')->nullable();
             $table->dateTime('released');
             $table->string('description', 1000);
             $table->smallInteger('run_time')->unsigned();
@@ -27,7 +29,6 @@ return new class extends Migration
             $table->string('preview_video_link', 255);
             $table->string('imdb_id')->unique();
             $table->set('status', ['pending', 'moderate', 'ready'])->nullable();
-            $table->decimal('rating', 2, 1);
             $table->timestamps();
         });
     }

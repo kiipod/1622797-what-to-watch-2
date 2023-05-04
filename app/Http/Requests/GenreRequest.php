@@ -25,7 +25,7 @@ class GenreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => [
+            'genre' => [
                 'required',
                 'string',
                 'max:128'

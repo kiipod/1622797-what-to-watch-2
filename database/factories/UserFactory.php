@@ -29,11 +29,11 @@ class UserFactory extends Factory
     }
 
     /**
-     * Метод устанавливает пользователю права Модератора
+     * Установка роли модератор пользователю.
      *
      * @return UserFactory
      */
-    public function canModerator(): UserFactory
+    public function moderator(): UserFactory
     {
         return $this->state(function (array $attributes) {
             return [

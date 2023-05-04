@@ -50,7 +50,7 @@ Route::prefix('films')->middleware('auth:sanctum')->group(function () {
     Route::delete('/{id}/favorite', [FavoriteController::class, 'destroy'])
         ->where('id', '\d+')->name('favorite.destroy');
     Route::post('/{id}/comments', [CommentController::class, 'store'])
-       ->where('id', 'd+')->name('comment.store');
+       ->where('id', '\d+')->name('comments.store');
 });
 
 Route::get('/genres', [GenreController::class, 'index'])->name('genres.index');

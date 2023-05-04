@@ -36,7 +36,7 @@ class GenreController extends Controller
         $validated = $request->validated();
         $genreId = $genre->id;
 
-        $updatedGenre = $updatedGenreService->genreUpdate($genreId, $validated['title']);
+        $updatedGenre = $updatedGenreService->genreUpdate($genreId, $validated['genre']);
 
         return new Success(data: ['updatedGenre' => $updatedGenre]);
     }

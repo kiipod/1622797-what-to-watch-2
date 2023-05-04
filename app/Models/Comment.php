@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Eloquent;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -61,6 +62,21 @@ class Comment extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class)
-            ->withDefault(['name' => 'Автор неизвестен']);
+            ->withDefault(['name' => 'Гость']);
+    }
+
+    /**
+     * Получение всех отзывов к фильму
+     *
+     * @param int $filmId
+     * @return Collection
+     */
+    public function getFilmComment(int $filmId): Collection
+    {
+        return $this->with(['user:id,name'])
+            ->select(['id', 'text', 'rating', 'created_at', 'user_id'])
+            ->where(['film_id' => $filmId])
+            ->orderBy('created_at', 'DESC')
+            ->get();
     }
 }

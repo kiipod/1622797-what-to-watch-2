@@ -2,52 +2,145 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use app\Http\Responses\Success;
+use App\Http\Requests\CommentRequest;
+use App\Http\Responses\FailPageNotFound;
+use App\Models\Comment;
+use App\Models\Film;
+use App\Services\CommentServices;
+use App\Services\FilmServices;
+use Illuminate\Auth\Access\AuthorizationException;
+use App\Http\Responses\Success;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class CommentController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Метод показывает все комментарии к фильму
      *
-     * @return Success
+     * @param int $filmId
+     * @return FailPageNotFound|Success
      */
-    public function index()
+    public function index(int $filmId): FailPageNotFound|Success
     {
-        return new Success();
+        $commentClass = new Comment();
+
+        $film = Film::whereId($filmId)->first();
+
+        if (!$film) {
+            return new FailPageNotFound();
+        }
+
+        $comments = $commentClass->getFilmComment($filmId);
+
+        return new Success(data: ['comments' => $comments]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Метод отвечает за добавление нового комментария
      *
-     * @param Request $request
+     * @param CommentRequest $request
+     * @param int $filmId
      * @return Success
+     * @throws Throwable
      */
-    public function store(Request $request)
+    public function store(CommentRequest $request, int $filmId): Success
     {
-        return new Success();
+        $commentService = new CommentServices();
+        $filmService = new FilmServices();
+
+        $params = $request->validated();
+        $newRating = $params['rating'] ?? null;
+        $user = Auth::user();
+
+        DB::beginTransaction();
+
+        try {
+            $newComment = $commentService->addNewComment($params, $user->id, $filmId);
+
+            if ($newRating) {
+                $filmService->updateRating($filmId, $newRating);
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+
+        return new Success(data: ['comment' => $newComment]);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Метод отвечает за редактирования комментария
      *
-     * @param Request $request
-     * @param  int  $id
+     * @param CommentRequest $request
      * @return Success
+     * @throws Throwable
      */
-    public function update(Request $request, $id)
+    public function update(CommentRequest $request): Success
     {
-        return new Success();
+        $commentService = new CommentServices();
+        $filmService = new FilmServices();
+
+        $currentComment = $request->findComment();
+
+        $params = $request->validated();
+        $commentId = $currentComment->id;
+        $filmId = $currentComment->film_id;
+        $newCommentRating = $params['rating'] ?? null;
+
+        DB::beginTransaction();
+
+        try {
+            $updatedComment = $commentService->updateComment($commentId, $params);
+
+            if ($newCommentRating) {
+                $filmService->updateRating($filmId, $newCommentRating);
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+
+        return new Success($updatedComment);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Метод отвечает за удаление комментария
      *
-     * @param  int  $id
-     * @return Success
+     * @param int $commentId
+     * @return FailPageNotFound|Success
+     * @throws AuthorizationException
+     * @throws Throwable
      */
-    public function destroy($id)
+    public function destroy(int $commentId): FailPageNotFound|Success
     {
-        return new Success();
+        $commentService = new CommentServices();
+
+        $currentComment = Comment::find($commentId);
+
+        if (!$currentComment) {
+            return new FailPageNotFound();
+        }
+
+        $this->authorize('delete', $currentComment);
+
+        DB::beginTransaction();
+
+        try {
+            $commentService->deleteComment($commentId);
+            $commentService->deleteChildComment($commentId);
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+
+        return new Success(data: ['Комментарий успешно удален']);
     }
 }

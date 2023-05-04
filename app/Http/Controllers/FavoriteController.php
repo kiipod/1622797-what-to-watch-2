@@ -2,40 +2,74 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\FailAuth;
 use App\Http\Responses\Success;
-use Illuminate\Http\Request;
+use App\Services\FavoriteServices;
+use App\Services\FilmServices;
+use Illuminate\Support\Facades\Auth;
 
 class FavoriteController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Метод показывает все избранные фильмы пользователя
      *
-     * @return Success
+     * @return Success|FailAuth
      */
-    public function index()
+    public function index(): Success|FailAuth
     {
-        return new Success();
+        $favoriteServices = new FavoriteServices();
+        $user = Auth::user();
+
+        if (!$user) {
+            return new FailAuth();
+        }
+
+        $userId = $user->id;
+        $favoriteFilms = $favoriteServices->getFavoriteFilms($userId);
+        return new Success(data: $favoriteFilms);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Метод отвечает за добавление фильма в список избранных
      *
-     * @param Request $request
-     * @return Success
+     * @param int $filmId
+     * @return Success|FailAuth
      */
-    public function store(Request $request)
+    public function store(int $filmId): Success|FailAuth
     {
-        return new Success();
+        $filmServices = new FilmServices();
+
+        $film = $filmServices->findById($filmId);
+        $user = Auth::user();
+
+        if ($user->favorites()->where('film_id', '=', $filmId)->first() !== null) {
+            return new FailAuth();
+        }
+
+        $user->favorites()->attach($filmId);
+
+        return new Success(data: $film);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Метод отвечает за удаление фильма из списка избранных
      *
-     * @param  int  $id
-     * @return Success
+     * @param int $filmId
+     * @return Success|FailAuth
      */
-    public function destroy($id)
+    public function destroy(int $filmId): Success|FailAuth
     {
-        return new Success();
+        $filmServices = new FilmServices();
+
+        $film = $filmServices->findById($filmId);
+        $user = Auth::user();
+
+        if ($user->favorites()->where('film_id', '=', $filmId)->first() === null) {
+            return new FailAuth();
+        }
+
+        $user->favorites()->detach($filmId);
+
+        return new Success(data: ['Фильм удален из списка Избранных']);
     }
 }

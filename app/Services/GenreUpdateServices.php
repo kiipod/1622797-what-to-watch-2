@@ -18,8 +18,8 @@ class GenreUpdateServices
     {
         $updatedGenre = Genre::find($id);
 
-        if ($genre !== $updatedGenre->title) {
-            $updatedGenre->title = $genre;
+        if ($genre !== $updatedGenre->genre) {
+            $updatedGenre->genre = $genre;
         }
 
         $updatedGenre->update();

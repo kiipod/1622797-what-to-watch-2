@@ -3,15 +3,14 @@
 namespace App\Services;
 
 use App\Services\Interfaces\MovieInterface;
-use App\Services\HttpClients\OmdbHttpClient;
 
 class GetFilmService implements MovieInterface
 {
-    protected $client;
+    protected $httpClient;
 
-    public function __construct(OmdbHttpClient $client)
+    public function __construct($httpClient)
     {
-        $this->client = $client;
+        $this->httpClient = $httpClient;
     }
 
     /**
@@ -20,7 +19,7 @@ class GetFilmService implements MovieInterface
      */
     public function getFilm($filmId): mixed
     {
-        $response = $this->client->sendRequest($filmId);
+        $response = $this->httpClient->findFilmById($filmId);
 
         return json_decode($response, true);
     }

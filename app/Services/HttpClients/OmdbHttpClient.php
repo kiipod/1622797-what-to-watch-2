@@ -3,20 +3,48 @@
 namespace App\Services\HttpClients;
 
 use App\Services\Interfaces\HttpClientInterface;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
+use Psr\Http\Message\ResponseInterface;
 
 class OmdbHttpClient implements HttpClientInterface
 {
-    private string $apiKey = '41b01be2';
-    private string $baseUri = 'http://www.omdbapi.com/?i=%1$s&apikey=%2$s&plot=full&r=json';
+    private const API_KEY = '41b01be2';
+    private const BASE_URI = 'http://www.omdbapi.com/';
+    private ClientInterface $httpClient;
 
-
-    public function prepareRequest($filmId): string
+    /**
+     * @param ClientInterface $httpClient
+     */
+    public function __construct(ClientInterface $httpClient)
     {
-        return sprintf($this->baseUri, $filmId, $this->apiKey);
+        $this->httpClient = $httpClient;
     }
 
-    public function sendRequest($filmId): bool|string
+    /**
+     * Метод отправляет запрос на сервер для получения информации о фильме
+     *
+     * @param string $omdbId
+     * @return ResponseInterface
+     * @throws GuzzleException
+     */
+    public function prepareRequest(string $omdbId): ResponseInterface
     {
-        return file_get_contents($this->prepareRequest($filmId));
+        $query = [
+            'i' => $omdbId,
+            'apikey' => self::API_KEY,
+        ];
+
+         return $this->httpClient->request('GET', self::BASE_URI, ['query' => $query]);
+    }
+
+    /**
+     * @throws GuzzleException
+     */
+    public function findFilmById(string $omdbId)
+    {
+        $response = $this->prepareRequest($omdbId);
+
+        return json_decode($response->getBody()->getContents(), true);
     }
 }

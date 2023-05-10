@@ -39,7 +39,7 @@ class FavoriteController extends Controller
     {
         $filmServices = new FilmServices();
 
-        $film = $filmServices->findById($filmId);
+        $film = $filmServices->getFilmById($filmId);
         $user = Auth::user();
 
         if ($user->favorites()->where('film_id', '=', $filmId)->first() !== null) {
@@ -61,7 +61,7 @@ class FavoriteController extends Controller
     {
         $filmServices = new FilmServices();
 
-        $film = $filmServices->findById($filmId);
+        $film = $filmServices->getFilmById($filmId);
         $user = Auth::user();
 
         if ($user->favorites()->where('film_id', '=', $filmId)->first() === null) {

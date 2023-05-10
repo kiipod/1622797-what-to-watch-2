@@ -4,7 +4,7 @@ namespace App\Services\Interfaces;
 
 interface HttpClientInterface
 {
-    public function prepareRequest($filmId);
+    public function prepareRequest(string $omdbId);
 
-    public function sendRequest($filmId);
+    public function findFilmById(string $omdbId);
 }

@@ -7,10 +7,9 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\ResponseInterface;
 
-class OmdbHttpClient implements HttpClientInterface
+class HtmlAcademyHttpClient implements HttpClientInterface
 {
-    private const API_KEY = '41b01be2';
-    private const BASE_URI = 'http://www.omdbapi.com/';
+    private const HTML_ACADEMY_URI = 'http://guide.phpdemo.ru/api/films/';
     private ClientInterface $httpClient;
 
     /**
@@ -22,26 +21,21 @@ class OmdbHttpClient implements HttpClientInterface
     }
 
     /**
-     * Метод отправляет запрос на сервер для получения информации о фильме
-     *
      * @param string $omdbId
      * @return ResponseInterface
      * @throws GuzzleException
      */
     public function prepareRequest(string $omdbId): ResponseInterface
     {
-        $query = [
-            'i' => $omdbId,
-            'apikey' => self::API_KEY,
-        ];
-
-         return $this->httpClient->request('GET', self::BASE_URI, ['query' => $query]);
+        return $this->httpClient->request('GET', self::HTML_ACADEMY_URI . $omdbId);
     }
 
     /**
+     * @param string $omdbId
+     * @return array
      * @throws GuzzleException
      */
-    public function findFilmById(string $omdbId)
+    public function findFilmById(string $omdbId): array
     {
         $response = $this->prepareRequest($omdbId);
 

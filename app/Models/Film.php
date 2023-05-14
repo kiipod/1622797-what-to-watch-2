@@ -53,8 +53,8 @@ use Database\Factories\FilmFactory;
  * @method static Builder|Film whereVideoLink($value)
  * @property-read Collection<int, Actor> $actors
  * @property-read int|null $actors_count
- * @property-read Collection<int, Director> $directors
- * @property-read int|null $directors_count
+ * @property-read Collection<int, Director> $director
+ * @property-read int|null $director_count
  * @property-read Collection<int, Comment> $comments
  * @property-read int|null $comments_count
  * @property-read Collection<int, Genre> $genres
@@ -82,7 +82,7 @@ class Film extends Model
         'video_link',
         'preview_video_link',
         'description',
-        'directors',
+        'director',
         'actors',
         'run_time',
         'released',
@@ -140,7 +140,7 @@ class Film extends Model
      *
      * @return BelongsToMany
      */
-    public function directors(): BelongsToMany
+    public function director(): BelongsToMany
     {
         return $this->belongsToMany(
             Director::class,

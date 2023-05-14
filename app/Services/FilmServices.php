@@ -2,15 +2,21 @@
 
 namespace App\Services;
 
+use App\Http\Requests\UpdateFilmRequest;
+use App\Models\Actor;
 use App\Models\Film;
+use App\Models\Genre;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Throwable;
 
 class FilmServices
 {
-    public const DEFAULT_LIMIT = 5;
+    public const DEFAULT_LIMIT = 8;
     public const DEFAULT_OFFSET = 0;
     public const DEFAULT_PAGE_SIZE = 8;
     public const DEFAULT_PAGE = 1;
@@ -130,5 +136,61 @@ class FilmServices
                 perPage: $queryParams['pageSize'],
                 page: $queryParams['page']
             );
+    }
+
+    /**
+     * Метод отвечает за обновление информации о фильме
+     *
+     * @param UpdateFilmRequest $request
+     * @param Film $film
+     * @return Film
+     * @throws Throwable
+     */
+    public function updateFilmInfo(UpdateFilmRequest $request, Film $film): Film
+    {
+        $film->fill([
+            'title' => $request->title,
+            'poster_image' => $request->poster_image,
+            'preview_image' => $request->preview_image,
+            'background_image' => $request->background_image,
+            'video_link' => $request->video_link,
+            'preview_video_link' => $request->preview_video_link,
+            'director' => $request->director,
+            'background_color' => $request->background_color,
+            'description' => $request->description,
+            'run_time' => $request->run_time,
+            'released' => $request->released,
+            'imdb_id' => $request->imdb_id,
+            'status' => $request->status,
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $actorsId = [];
+            $genresId = [];
+            $actors = $request->actors;
+            $genres = $request->genres;
+
+            foreach ($actors as $actor) {
+                $actorsId[] = Actor::firstOrCreate(['name' => $actor])->id;
+            }
+
+            foreach ($genres as $genre) {
+                $genresId[] = Genre::firstOrCreate(['genre' => $genre])->id;
+            }
+
+            $film->save();
+
+            $film->actors()->sync($actorsId);
+            $film->genres()->sync($genresId);
+
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            Log::warning($exception->getMessage());
+        }
+
+        return $film;
     }
 }

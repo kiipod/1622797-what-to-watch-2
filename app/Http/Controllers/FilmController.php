@@ -6,9 +6,12 @@ use App\Http\Requests\AddFilmRequest;
 use App\Http\Requests\UpdateFilmRequest;
 use App\Http\Responses\FailPageNotFound;
 use App\Http\Responses\Success;
+use App\Jobs\AddFilmJob;
+use App\Models\Film;
 use App\Services\FilmServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Throwable;
 
 class FilmController extends Controller
 {
@@ -39,14 +42,18 @@ class FilmController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Метод отвечает за добавление фильма в базу
      *
      * @param AddFilmRequest $request
      * @return Success
      */
-    public function store(AddFilmRequest $request)
+    public function store(AddFilmRequest $request): Success
     {
-        return new Success();
+        $imdbId = $request->validated()['imdb_id'];
+
+        AddFilmJob::dispatch($imdbId);
+
+        return new Success(['message' => 'Фильм успешно сохранен в базу'], 201);
     }
 
     /**
@@ -78,10 +85,16 @@ class FilmController extends Controller
      * @param UpdateFilmRequest $request
      * @param int $filmId
      * @return Success
+     * @throws Throwable
      */
     public function update(UpdateFilmRequest $request, int $filmId): Success
     {
-        return new Success();
+        $filmServices = new FilmServices();
+
+        $film = Film::find($filmId);
+        $updatedFilm = $filmServices->updateFilmInfo($request->validated(), $film);
+
+        return new Success(data: $updatedFilm);
     }
 
     /**

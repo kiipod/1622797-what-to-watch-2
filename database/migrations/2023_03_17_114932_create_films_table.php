@@ -29,6 +29,7 @@ return new class extends Migration
             $table->string('preview_video_link', 255);
             $table->string('imdb_id')->unique();
             $table->set('status', ['pending', 'moderate', 'ready'])->nullable();
+            $table->boolean('promo')->default(false);
             $table->timestamps();
         });
     }

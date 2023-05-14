@@ -41,27 +41,29 @@ class OmdbHttpClient implements HttpClientInterface
     /**
      * @throws GuzzleException
      */
-    public function findFilmById(string $omdbId)
+    public function findFilmById(string $omdbId): array
     {
         $response = $this->prepareRequest($omdbId);
 
         $filmData = json_decode($response->getBody()->getContents(), true);
 
         return [
-            'title' => $filmData['name'],
-            'poster_image' => $filmData['poster'],
-            'preview_image' => $filmData['icon'],
-            'background_image' => $filmData['background'],
+            'title' => $filmData['Title'],
+            'poster_image' => $filmData['Poster'],
+            'preview_image' => null,
+            'background_image' => null,
             'background_color' => null,
-            'video_link' => $filmData['video'],
-            'preview_video_link' => $filmData['preview'],
-            'description' => $filmData['desc'],
-            'directors' => $filmData['director'],
-            'released' => (int) $filmData['released'],
-            'run_time' => (int) $filmData['run_time'],
-            'imdb_id' => $filmData['imdb_id'],
-            'actors' => $filmData['actors'],
-            'genres' => $filmData['genres']
+            'video_link' => null,
+            'preview_video_link' => null,
+            'description' => $filmData['Plot'],
+            'directors' => $filmData['Director'],
+            'released' => (int) $filmData['Year'],
+            'run_time' => (int) $filmData['Runtime'],
+            'rating' => (float) $filmData['imbdRating'],
+            'scores_count' => (int) str_replace(',', '', $filmData['imdbVotes']),
+            'imdb_id' => $filmData['imdbID'],
+            'actors' => array_map('trim', explode(',', $filmData['Actors'])),
+            'genres' => array_map('trim', explode(',', $filmData['Genre']))
         ];
     }
 }

@@ -39,6 +39,23 @@ class HtmlAcademyHttpClient implements HttpClientInterface
     {
         $response = $this->prepareRequest($omdbId);
 
-        return json_decode($response->getBody()->getContents(), true);
+        $filmData = json_decode($response->getBody()->getContents(), true);
+
+        return [
+            'title' => $filmData['name'],
+            'poster_image' => $filmData['poster'],
+            'preview_image' => $filmData['icon'],
+            'background_image' => $filmData['background'],
+            'background_color' => null,
+            'video_link' => $filmData['video'],
+            'preview_video_link' => $filmData['preview'],
+            'description' => $filmData['desc'],
+            'directors' => $filmData['director'],
+            'released' => (int) $filmData['released'],
+            'run_time' => (int) $filmData['run_time'],
+            'imdb_id' => $filmData['imdb_id'],
+            'actors' => $filmData['actors'],
+            'genres' => $filmData['genres']
+        ];
     }
 }

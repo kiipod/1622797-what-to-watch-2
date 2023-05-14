@@ -4,5 +4,7 @@ namespace App\Services\Interfaces;
 
 interface MovieInterface
 {
-    public function getFilm($filmId);
+    public function searchFilm(int $ombdId);
+
+    public function saveFilm(array $filmData);
 }

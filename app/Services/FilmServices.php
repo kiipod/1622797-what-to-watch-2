@@ -193,4 +193,20 @@ class FilmServices
 
         return $film;
     }
+
+    /**
+     * Метод отвечает за получение Промо-фильма
+     *
+     * @param array $columns
+     * @return Model|null
+     */
+    public function getPromoFilm(array $columns = ['*']): ?Model
+    {
+        return Film::with([
+            'genres',
+            'actors',
+            'directors',
+            'comments'
+        ])->where('promo', '=', 1)->first($columns);
+    }
 }

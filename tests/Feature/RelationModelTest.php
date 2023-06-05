@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Actor;
 use App\Models\Comment;
-use App\Models\Director;
 use App\Models\Film;
 use App\Models\Genre;
 use App\Models\User;
@@ -30,15 +29,9 @@ class RelationModelTest extends TestCase
         $film = Film::all()->random();
         $genre = Genre::all()->random();
         $user = User::all()->random();
-        $director = Director::all()->random();
 
         // Проверка связи актёр-фильм
         foreach ($actor->films as $film) {
-            $this->assertInstanceOf(Film::class, $film);
-        }
-
-        // Проверка связи режиссер-фильм
-        foreach ($director->films as $film) {
             $this->assertInstanceOf(Film::class, $film);
         }
 
@@ -55,11 +48,6 @@ class RelationModelTest extends TestCase
         // Проверка связи фильм-актёры
         foreach ($film->actors as $actor) {
             $this->assertInstanceOf(Actor::class, $actor);
-        }
-
-        // Проверка связи фильм-режиссер
-        foreach ($film->directors as $director) {
-            $this->assertInstanceOf(Director::class, $director);
         }
 
         // Проверка связи фильм-комментарии

@@ -23,6 +23,7 @@ use Database\Factories\FilmFactory;
  * @property string $background_color
  * @property string $released
  * @property string $description
+ * @property string $director
  * @property int $run_time
  * @property string $video_link
  * @property string $preview_video_link
@@ -30,6 +31,7 @@ use Database\Factories\FilmFactory;
  * @property mixed|null $status
  * @property string $rating
  * @property int|null $scores_count
+ * @property int $promo
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @method static Builder|Film newModelQuery()
@@ -39,6 +41,7 @@ use Database\Factories\FilmFactory;
  * @method static Builder|Film whereBackgroundImage($value)
  * @method static Builder|Film whereCreatedAt($value)
  * @method static Builder|Film whereDescription($value)
+ * @method static Builder|Film whereDirector($value)
  * @method static Builder|Film whereId($value)
  * @method static Builder|Film whereImdbId($value)
  * @method static Builder|Film wherePosterImage($value)
@@ -51,10 +54,10 @@ use Database\Factories\FilmFactory;
  * @method static Builder|Film whereTitle($value)
  * @method static Builder|Film whereUpdatedAt($value)
  * @method static Builder|Film whereVideoLink($value)
+ * @method static Builder|Film whereScoresCount($value)
+ * @method static Builder|Film wherePromo($value)
  * @property-read Collection<int, Actor> $actors
  * @property-read int|null $actors_count
- * @property-read Collection<int, Director> $director
- * @property-read int|null $director_count
  * @property-read Collection<int, Comment> $comments
  * @property-read int|null $comments_count
  * @property-read Collection<int, Genre> $genres
@@ -62,7 +65,6 @@ use Database\Factories\FilmFactory;
  * @property-read Collection<int, User> $users
  * @property-read int|null $users_count
  * @method static FilmFactory factory($count = null, $state = [])
- * @method static Builder|Film whereScoresCount($value)
  * @mixin Eloquent
  */
 class Film extends Model
@@ -70,6 +72,10 @@ class Film extends Model
     use HasFactory;
 
     protected $table = 'films';
+
+    protected $attributes = [
+        'promo' => false
+    ];
 
     public $fillable = [
         'rating',
@@ -132,21 +138,6 @@ class Film extends Model
             'film_actors',
             'film_id',
             'actor_id'
-        );
-    }
-
-    /**
-     * Получение списка режиссеров к фильму
-     *
-     * @return BelongsToMany
-     */
-    public function director(): BelongsToMany
-    {
-        return $this->belongsToMany(
-            Director::class,
-            'film_directors',
-            'film_id',
-            'director_id'
         );
     }
 

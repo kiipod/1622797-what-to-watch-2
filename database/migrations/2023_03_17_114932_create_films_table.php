@@ -22,13 +22,15 @@ return new class extends Migration
             $table->char('background_color', 9);
             $table->float('rating')->nullable();
             $table->integer('scores_count')->nullable();
-            $table->dateTime('released');
+            $table->year('released');
             $table->string('description', 1000);
+            $table->string('director', 255);
             $table->smallInteger('run_time')->unsigned();
             $table->string('video_link', 255);
             $table->string('preview_video_link', 255);
             $table->string('imdb_id')->unique();
             $table->set('status', ['pending', 'moderate', 'ready'])->nullable();
+            $table->boolean('promo')->default(false);
             $table->timestamps();
         });
     }

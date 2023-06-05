@@ -3,48 +3,52 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
-use App\Http\Responses\FailAuth;
-use App\Http\Responses\Success;
+use App\Http\Responses\FailAuthResponse;
+use App\Http\Responses\SuccessResponse;
 use App\Services\UserServices;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
     /**
+     * @param UserServices $userServices
+     */
+    public function __construct(private UserServices $userServices)
+    {
+    }
+
+    /**
      * Метод отвечает за получение информации о пользователе
      *
      * @param int $userId
-     * @return Success|FailAuth
+     * @return SuccessResponse|FailAuthResponse
      */
-    public function index(int $userId): Success|FailAuth
+    public function index(int $userId): SuccessResponse|FailAuthResponse
     {
-        $userServices = new UserServices();
         $user = Auth::user();
 
         if ($user->id !== $userId) {
-            return new FailAuth();
+            return new FailAuthResponse();
         }
 
-        $userInfo = $userServices->getUserInfo($userId);
+        $userInfo = $this->userServices->getUserInfo($userId);
 
-        return new Success(data: $userInfo);
+        return new SuccessResponse(data: $userInfo);
     }
 
     /**
      * Метод отвечает за обновление информации о пользователе
      *
      * @param UserRequest $request
-     * @param int $userId
-     * @return Success
+     * @return SuccessResponse
      */
-    public function update(UserRequest $request, int $userId): Success
+    public function update(UserRequest $request): SuccessResponse
     {
-        $userServices = new UserServices();
         $user = Auth::user();
 
-        $updatedUser = $userServices->updateUser($request, $user);
+        $updatedUser = $this->userServices->updateUser($request, $user);
 
-        return new Success(data: [
+        return new SuccessResponse(data: [
             'updatedUser' => $updatedUser
         ]);
     }

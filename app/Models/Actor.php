@@ -36,6 +36,10 @@ class Actor extends Model
 
     protected $table = 'actors';
 
+    public $fillable = [
+        'name'
+    ];
+
     /**
      * Получение фильмов, в которых снимался актер
      *

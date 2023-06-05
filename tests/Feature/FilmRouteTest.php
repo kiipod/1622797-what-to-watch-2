@@ -2,13 +2,15 @@
 
 namespace Tests\Feature;
 
-use App\Models\Comment;
+use App\Jobs\AddFilmJob;
 use App\Models\Film;
 use App\Models\FilmGenre;
 use App\Models\Genre;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
+use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
 class FilmRouteTest extends TestCase
@@ -52,14 +54,18 @@ class FilmRouteTest extends TestCase
      */
     public function test_can_add_new_film_by_moderator()
     {
+        Queue::fake();
+
         $moderator = User::factory()->moderator()->create();
 
         $this->actingAs($moderator)
             ->postJson(route('films.store'), ['imdb_id' => 'tt1385384'])
-            ->assertOk()
+            ->assertCreated()
             ->assertJsonStructure([
                 'data' => []
             ]);
+
+        Queue::assertPushed(AddFilmJob::class);
     }
 
     /**
@@ -295,7 +301,7 @@ class FilmRouteTest extends TestCase
                 'title' => 'The New Legendary Film',
                 'imdb_id' => 'tt1234567',
                 'status' => 'ready',
-                'directors' => 45
+                'director' => 45
             ])
             ->assertUnprocessable()
             ->assertJsonStructure([
@@ -323,7 +329,7 @@ class FilmRouteTest extends TestCase
                 'title' => 'The New Legendary Film',
                 'imdb_id' => 'tt1234567',
                 'status' => 'ready',
-                'genre' => 234546
+                'genres' => 234546
             ])
             ->assertUnprocessable()
             ->assertJsonStructure([
@@ -384,7 +390,7 @@ class FilmRouteTest extends TestCase
                 'description',
                 'rating',
                 'scores_count',
-                'directors',
+                'director',
                 'actors',
                 'run_time',
                 'genres',

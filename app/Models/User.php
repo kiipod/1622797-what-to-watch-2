@@ -23,9 +23,7 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @property int $id
  * @property string $name
  * @property string $email
- * @property string|null $email_verified_at
  * @property string $password
- * @property string|null $remember_token
  * @property string $avatar_url
  * @property bool $is_moderator
  * @property Carbon|null $created_at
@@ -36,11 +34,9 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @method static Builder|User whereAvatarUrl($value)
  * @method static Builder|User whereCreatedAt($value)
  * @method static Builder|User whereEmail($value)
- * @method static Builder|User whereEmailVerifiedAt($value)
  * @method static Builder|User whereId($value)
  * @method static Builder|User whereName($value)
  * @method static Builder|User wherePassword($value)
- * @method static Builder|User whereRememberToken($value)
  * @method static Builder|User whereUpdatedAt($value)
  * @method static Builder|User whereIsModerator($value)
  * @property-read Collection<int, Film> $favorites
@@ -70,15 +66,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password'
-    ];
-
-    protected $hidden = [
-        'password',
-        'remember_token'
-    ];
-
-    protected $casts = [
-        'email_verified_at' => 'datetime'
     ];
 
     /**

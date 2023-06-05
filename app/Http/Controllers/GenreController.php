@@ -3,23 +3,30 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\GenreRequest;
-use App\Http\Responses\Success;
+use App\Http\Responses\SuccessResponse;
 use App\Models\Genre;
-use App\Services\GenreUpdateServices;
+use App\Services\GenreServices;
 
 class GenreController extends Controller
 {
     /**
+     * @param Genre $genreModel
+     * @param GenreServices $genreServices
+     */
+    public function __construct(private Genre $genreModel, private GenreServices $genreServices)
+    {
+    }
+
+    /**
      * Получение списка жанров
      *
-     * @return Success
+     * @return SuccessResponse
      */
-    public function index(): Success
+    public function index(): SuccessResponse
     {
-        $genreClass = new Genre();
-        $genres = $genreClass->getAllGenre();
+        $genres = $this->genreModel->getAllGenre();
 
-        return new Success(data: ['genres' => $genres]);
+        return new SuccessResponse(data: ['genres' => $genres]);
     }
 
     /**
@@ -27,17 +34,15 @@ class GenreController extends Controller
      *
      * @param GenreRequest $request
      * @param Genre $genre
-     * @return Success
+     * @return SuccessResponse
      */
-    public function update(GenreRequest $request, Genre $genre): Success
+    public function update(GenreRequest $request, Genre $genre): SuccessResponse
     {
-        $updatedGenreService = new GenreUpdateServices();
-
         $validated = $request->validated();
         $genreId = $genre->id;
 
-        $updatedGenre = $updatedGenreService->genreUpdate($genreId, $validated['genre']);
+        $updatedGenre = $this->genreServices->genreUpdate($genreId, $validated['genre']);
 
-        return new Success(data: ['updatedGenre' => $updatedGenre]);
+        return new SuccessResponse(data: ['updatedGenre' => $updatedGenre]);
     }
 }

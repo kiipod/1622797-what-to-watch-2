@@ -4,7 +4,7 @@ namespace App\Http\Responses;
 
 use Symfony\Component\HttpFoundation\Response;
 
-class FailPageNotFound extends Base
+class NotFoundResponse extends BaseResponse
 {
     public int $statusCode = Response::HTTP_NOT_FOUND;
     protected string $message;

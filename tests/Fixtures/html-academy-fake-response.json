@@ -1,0 +1,25 @@
+{
+    "code":200,
+    "message":"OK",
+    "data":{
+        "imdb_id":"tt0111161",
+        "name":"The Shawshank Redemption",
+        "desc":"Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
+        "director":"Frank Darabont",
+        "actors":[
+            "Tim Robbins",
+            "Morgan Freeman",
+            "Bob Gunton"
+        ],
+        "run_time":142,
+        "released":1994,
+        "genres":[
+            "Drama"
+        ],
+        "poster":"http://guide.phpdemo.ru/storage/poster/tt0111161.jpg",
+        "icon":null,
+        "background":null,
+        "video":"http://guide.phpdemo.ru/storage/video/video.mp4",
+        "preview":null
+    }
+}

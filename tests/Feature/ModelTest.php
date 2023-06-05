@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Actor;
 use App\Models\Comment;
-use App\Models\Director;
 use App\Models\Favorite;
 use App\Models\Film;
 use App\Models\Genre;
@@ -25,17 +24,6 @@ class ModelTest extends TestCase
     {
         $actor = Actor::factory()->create();
         $this->assertInstanceOf(Actor::class, $actor);
-    }
-
-    /**
-     * Тест модели Режиссеры
-     *
-     * @return void
-     */
-    public function test_model_director(): void
-    {
-        $director = Director::factory()->create();
-        $this->assertInstanceOf(Director::class, $director);
     }
 
     /**

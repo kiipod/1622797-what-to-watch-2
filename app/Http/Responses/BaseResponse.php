@@ -7,7 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\Support\Arrayable;
 use Symfony\Component\HttpFoundation\Response;
 
-abstract class Base implements Responsable
+abstract class BaseResponse implements Responsable
 {
     protected mixed $data = [];
     public int $statusCode;

@@ -2,7 +2,7 @@
 
 namespace App\Http\Responses;
 
-class Success extends Base
+class SuccessResponse extends BaseResponse
 {
     /**
      * @return array|null

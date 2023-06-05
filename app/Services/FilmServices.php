@@ -2,15 +2,23 @@
 
 namespace App\Services;
 
+use App\Dto\FilmDto;
+use App\Dto\HtmlAcademyFilmDto;
+use App\Dto\OmdbFilmDto;
+use App\Models\Actor;
 use App\Models\Film;
+use App\Models\Genre;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Throwable;
 
 class FilmServices
 {
-    public const DEFAULT_LIMIT = 5;
+    public const DEFAULT_LIMIT = 8;
     public const DEFAULT_OFFSET = 0;
     public const DEFAULT_PAGE_SIZE = 8;
     public const DEFAULT_PAGE = 1;
@@ -30,7 +38,6 @@ class FilmServices
         return Film::with([
             'genres',
             'actors',
-            'directors',
             'comments'
         ])->where('id', '=', $filmId)->firstOrFail($columns);
     }
@@ -130,5 +137,243 @@ class FilmServices
                 perPage: $queryParams['pageSize'],
                 page: $queryParams['page']
             );
+    }
+
+    /**
+     * Метод отвечает за обновление информации о фильме
+     *
+     * @param FilmDto $dto
+     * @param Film $film
+     * @return Film
+     * @throws Throwable
+     */
+    public function updateFilmInfo(FilmDto $dto, Film $film): Film
+    {
+        $film->fill([
+            'title' => $dto->title,
+            'poster_image' => $dto->posterImage,
+            'preview_image' => $dto->previewImage,
+            'background_image' => $dto->backgroundImage,
+            'video_link' => $dto->videoLink,
+            'preview_video_link' => $dto->previewVideoLink,
+            'director' => $dto->director,
+            'background_color' => $dto->backgroundColor,
+            'description' => $dto->description,
+            'run_time' => $dto->runTime,
+            'released' => $dto->released,
+            'imdb_id' => $dto->imdbId,
+            'status' => $dto->status
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $actorsId = [];
+            $genresId = [];
+            $actors = $dto->actors;
+            $genres = $dto->genres;
+
+            foreach ($actors as $actor) {
+                $actorsId[] = Actor::firstOrCreate(['name' => $actor])->id;
+            }
+
+            foreach ($genres as $genre) {
+                $genresId[] = Genre::firstOrCreate(['genre' => $genre])->id;
+            }
+
+            $film->save();
+
+            $film->actors()->sync($actorsId);
+            $film->genres()->sync($genresId);
+
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            Log::warning($exception->getMessage());
+        }
+
+        return $film;
+    }
+
+    /**
+     * Метод отвечает за получение Промо-фильма
+     *
+     * @param array $columns
+     * @return Model|null
+     */
+    public function getPromoFilm(array $columns = ['*']): ?Model
+    {
+        return Film::with([
+            'genres',
+            'actors',
+            'comments'
+        ])->where('promo', '=', 1)->first($columns);
+    }
+
+    /**
+     * Метод получает информацию о фильме по imdb_id
+     *
+     * @param string $imdbId
+     * @param array $columns
+     * @return Model
+     */
+    public function getFilmByImdbId(string $imdbId, array $columns = ['*']): Model
+    {
+        return Film::where('imdb_id', '=', $imdbId)->firstOrFail($columns);
+    }
+
+    /**
+     * Метод отвечает за получение и сохранение данных фильма в БД
+     *
+     * @param string $imdbId
+     * @param OmdbFilmDto $dto
+     * @return Model
+     * @throws Throwable
+     */
+    public function saveFilmInfo(string $imdbId, OmdbFilmDto $dto): Model
+    {
+        $updatedFilm = $this->getFilmByImdbId($imdbId);
+
+        DB::beginTransaction();
+
+        try {
+            if ($dto->posterImage) {
+                $updatedFilm->poster_image = $dto->posterImage;
+            }
+
+            if ($dto->released) {
+                $releasedYear = substr($dto->released, -4, 4);
+                $updatedFilm->released = $releasedYear;
+            }
+
+            if ($dto->director) {
+                $updatedFilm->director = $dto->director;
+            }
+
+            if ($dto->runTime) {
+                $runtime = substr($dto->runTime, 0, -4);
+                $updatedFilm->run_time = (int)$runtime;
+            }
+
+            if ($dto->genres) {
+                $genres = explode(', ', $dto->genres);
+                $newGenres = array_map(
+                    static fn ($genre) => strtolower($genre),
+                    $genres
+                );
+
+                $alreadyExistedGenres = Genre::query()->whereIn('genre', $newGenres)->get();
+
+                $newGenreIds = array_map(
+                    static fn ($genre) => $genre['id'],
+                    $alreadyExistedGenres->toArray()
+                );
+
+                foreach ($newGenres as $genre) {
+                    $isExisted = $alreadyExistedGenres->contains('genre', '=', $genre);
+                    if (!$isExisted) {
+                        $newGenre = Genre::query()->create([
+                            'genre' => $genre,
+                        ]);
+                        $newGenreIds[] = $newGenre->id;
+                    }
+                }
+
+                $updatedFilm->genres()->sync($newGenreIds);
+            }
+
+            if ($dto->actors) {
+                $actors = explode(', ', $dto->actors);
+
+                $alreadyExistedActors = Actor::query()->whereIn('name', $actors)->get();
+
+                $newActorIds = array_map(
+                    static fn ($actor) => $actor['id'],
+                    $alreadyExistedActors->toArray()
+                );
+
+                foreach ($actors as $actor) {
+                    $isExisted = $alreadyExistedActors->contains('name', '=', $actor);
+                    if (!$isExisted) {
+                        $newActor = Actor::query()->create([
+                            'name' => $actor,
+                        ]);
+                        $newActorIds[] = $newActor->id;
+                    }
+                }
+
+                $updatedFilm->actors()->sync($newActorIds);
+            }
+
+            if ($dto->title) {
+                $updatedFilm->title = $dto->title;
+            }
+
+            if ($dto->description) {
+                $updatedFilm->description = $dto->description;
+            }
+
+            if ($dto->rating) {
+                $updatedFilm->rating = (float)$dto->rating;
+            }
+
+            if ($dto->scoresCount) {
+                $updatedFilm->scores_count = (int)str_replace(',', '', $dto->scoresCount);
+            }
+
+            $updatedFilm->status = 'pending';
+
+            $updatedFilm->save();
+
+            DB::commit();
+
+            return $updatedFilm;
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+
+    /**
+     * Метод отвечает за получение и сохранение дополнительных данных о фильме в БД
+     *
+     * @param string $imdbId
+     * @param HtmlAcademyFilmDto $dto
+     * @return Model
+     * @throws Throwable
+     */
+    public function saveAdditionalFilmInfo(string $imdbId, HtmlAcademyFilmDto $dto): Model
+    {
+        $updatedFilm = $this->getFilmByImdbId($imdbId);
+
+        DB::beginTransaction();
+
+        try {
+            if ($dto->previewImage) {
+                $updatedFilm->preview_image->delete();
+                $updatedFilm->preview_image = $dto->previewImage;
+            }
+
+            if ($dto->backgroundImage) {
+                $updatedFilm->background_image = $dto->backgroundImage;
+            }
+
+            if ($dto->videoLink) {
+                $updatedFilm->video_link = $dto->videoLink;
+            }
+
+            if ($dto->previewVideoLink) {
+                $updatedFilm->preview_video_link = $dto->previewVideoLink;
+            }
+
+            $updatedFilm->save();
+
+            DB::commit();
+
+            return $updatedFilm;
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 }

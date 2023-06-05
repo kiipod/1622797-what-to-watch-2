@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CommentRequest;
-use App\Http\Responses\FailPageNotFound;
+use App\Http\Responses\NotFoundResponse;
 use App\Models\Comment;
 use App\Models\Film;
 use App\Services\CommentServices;
 use App\Services\FilmServices;
 use Illuminate\Auth\Access\AuthorizationException;
-use App\Http\Responses\Success;
+use App\Http\Responses\SuccessResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -17,24 +17,34 @@ use Throwable;
 class CommentController extends Controller
 {
     /**
+     * @param Comment $commentModel
+     * @param CommentServices $commentServices
+     * @param FilmServices $filmServices
+     */
+    public function __construct(
+        private Comment $commentModel,
+        private CommentServices $commentServices,
+        private FilmServices $filmServices
+    ) {
+    }
+
+    /**
      * Метод показывает все комментарии к фильму
      *
      * @param int $filmId
-     * @return FailPageNotFound|Success
+     * @return NotFoundResponse|SuccessResponse
      */
-    public function index(int $filmId): FailPageNotFound|Success
+    public function index(int $filmId): NotFoundResponse|SuccessResponse
     {
-        $commentClass = new Comment();
-
         $film = Film::whereId($filmId)->first();
 
         if (!$film) {
-            return new FailPageNotFound();
+            return new NotFoundResponse();
         }
 
-        $comments = $commentClass->getFilmComment($filmId);
+        $comments = $this->commentModel->getFilmComment($filmId);
 
-        return new Success(data: ['comments' => $comments]);
+        return new SuccessResponse(data: ['comments' => $comments]);
     }
 
     /**
@@ -42,14 +52,11 @@ class CommentController extends Controller
      *
      * @param CommentRequest $request
      * @param int $filmId
-     * @return Success
+     * @return SuccessResponse
      * @throws Throwable
      */
-    public function store(CommentRequest $request, int $filmId): Success
+    public function store(CommentRequest $request, int $filmId): SuccessResponse
     {
-        $commentService = new CommentServices();
-        $filmService = new FilmServices();
-
         $params = $request->validated();
         $newRating = $params['rating'] ?? null;
         $user = Auth::user();
@@ -57,10 +64,10 @@ class CommentController extends Controller
         DB::beginTransaction();
 
         try {
-            $newComment = $commentService->addNewComment($params, $user->id, $filmId);
+            $newComment = $this->commentServices->addNewComment($params, $user->id, $filmId);
 
             if ($newRating) {
-                $filmService->updateRating($filmId, $newRating);
+                $this->filmServices->updateRating($filmId, $newRating);
             }
 
             DB::commit();
@@ -69,21 +76,18 @@ class CommentController extends Controller
             throw $e;
         }
 
-        return new Success(data: ['comment' => $newComment]);
+        return new SuccessResponse(data: ['comment' => $newComment]);
     }
 
     /**
      * Метод отвечает за редактирования комментария
      *
      * @param CommentRequest $request
-     * @return Success
+     * @return SuccessResponse
      * @throws Throwable
      */
-    public function update(CommentRequest $request): Success
+    public function update(CommentRequest $request): SuccessResponse
     {
-        $commentService = new CommentServices();
-        $filmService = new FilmServices();
-
         $currentComment = $request->findComment();
 
         $params = $request->validated();
@@ -94,10 +98,10 @@ class CommentController extends Controller
         DB::beginTransaction();
 
         try {
-            $updatedComment = $commentService->updateComment($commentId, $params);
+            $updatedComment = $this->commentServices->updateComment($commentId, $params);
 
             if ($newCommentRating) {
-                $filmService->updateRating($filmId, $newCommentRating);
+                $this->filmServices->updateRating($filmId, $newCommentRating);
             }
 
             DB::commit();
@@ -106,25 +110,23 @@ class CommentController extends Controller
             throw $e;
         }
 
-        return new Success($updatedComment);
+        return new SuccessResponse($updatedComment);
     }
 
     /**
      * Метод отвечает за удаление комментария
      *
      * @param int $commentId
-     * @return FailPageNotFound|Success
+     * @return NotFoundResponse|SuccessResponse
      * @throws AuthorizationException
      * @throws Throwable
      */
-    public function destroy(int $commentId): FailPageNotFound|Success
+    public function destroy(int $commentId): NotFoundResponse|SuccessResponse
     {
-        $commentService = new CommentServices();
-
         $currentComment = Comment::find($commentId);
 
         if (!$currentComment) {
-            return new FailPageNotFound();
+            return new NotFoundResponse();
         }
 
         $this->authorize('delete', $currentComment);
@@ -132,8 +134,8 @@ class CommentController extends Controller
         DB::beginTransaction();
 
         try {
-            $commentService->deleteComment($commentId);
-            $commentService->deleteChildComment($commentId);
+            $this->commentServices->deleteComment($commentId);
+            $this->commentServices->deleteChildComment($commentId);
 
             DB::commit();
         } catch (\Exception $e) {
@@ -141,6 +143,6 @@ class CommentController extends Controller
             throw $e;
         }
 
-        return new Success(data: ['Комментарий успешно удален']);
+        return new SuccessResponse(data: ['Комментарий успешно удален']);
     }
 }

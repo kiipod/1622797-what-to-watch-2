@@ -2,29 +2,61 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Responses\Success;
-use Illuminate\Http\Request;
+use App\Http\Responses\NotFoundResponse;
+use App\Http\Responses\SuccessResponse;
+use App\Services\FilmServices;
+use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class PromoController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return Success
+     * @param FilmServices $filmServices
      */
-    public function index()
+    public function __construct(private FilmServices $filmServices)
     {
-        return new Success();
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Метод отвечает за получение Промо-фильма
      *
-     * @param Request $request
-     * @return Success
+     * @return NotFoundResponse|SuccessResponse
      */
-    public function store(Request $request)
+    public function index(): NotFoundResponse|SuccessResponse
     {
-        return new Success();
+        $promoFilm = $this->filmServices->getPromoFilm();
+
+        if (!$promoFilm) {
+            return new NotFoundResponse();
+        }
+        return new SuccessResponse(data: $promoFilm);
+    }
+
+    /**
+     * Метод отвечает за установку/снятие Промо-фильма
+     *
+     * @param int $filmId
+     * @return SuccessResponse
+     * @throws Throwable
+     */
+    public function store(int $filmId): SuccessResponse
+    {
+        $currentFilm = $this->filmServices->getFilmById($filmId);
+
+        DB::beginTransaction();
+        try {
+            if ($previousPromoFilm = $this->filmServices->getPromoFilm()) {
+                $previousPromoFilm->update(['promo' => false]);
+            }
+
+            $currentFilm->update(['promo' => true]);
+
+            DB::commit();
+
+            return new SuccessResponse(data: $currentFilm);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 }

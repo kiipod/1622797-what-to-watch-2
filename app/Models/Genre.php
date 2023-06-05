@@ -36,6 +36,10 @@ class Genre extends Model
 
     protected $table = 'genres';
 
+    public $fillable = [
+        'genre'
+    ];
+
     /**
      * Получение фильмов относящихся к жанру
      *

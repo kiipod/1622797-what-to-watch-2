@@ -46,15 +46,16 @@ class UserServices
             $user->name = $params['name'];
         }
 
-        if (isset($params['avatar_url'])) {
-            $oldPath = $user->avatar_url;
-            Storage::delete($oldPath);
+        if ($request->hasFile('avatar_url')) {
+            $newAvatar = $request->file('avatar_url');
+            $oldAvatar = $user->avatar_url;
+            if ($oldAvatar) {
+                Storage::delete($oldAvatar);
+            }
+            $filename = $newAvatar->store('public/avatars', 'public');
+            $user['avatar_url'] = $filename;
         }
 
-        if ($request->hasFile('avatar_url')) {
-            $params['avatar_url'] = $request->file('avatar_url');
-            $user->avatar_url = $params['avatar_url'];
-        }
 
         $user->update();
 

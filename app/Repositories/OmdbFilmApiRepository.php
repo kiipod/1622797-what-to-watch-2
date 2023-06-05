@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Services\HttpClients;
+namespace App\Repositories;
 
-use App\Services\Interfaces\HttpClientInterface;
+use App\Repositories\Interfaces\OmdbApiRepositoryInterface;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\ResponseInterface;
 
-class OmdbHttpClient implements HttpClientInterface
+class OmdbFilmApiRepository implements OmdbApiRepositoryInterface
 {
     private const API_KEY = '41b01be2';
     private const BASE_URI = 'http://www.omdbapi.com/';
@@ -44,26 +44,6 @@ class OmdbHttpClient implements HttpClientInterface
     public function findFilmById(string $omdbId): array
     {
         $response = $this->prepareRequest($omdbId);
-
-        $filmData = json_decode($response->getBody()->getContents(), true);
-
-        return [
-            'title' => $filmData['Title'],
-            'poster_image' => $filmData['Poster'],
-            'preview_image' => null,
-            'background_image' => null,
-            'background_color' => null,
-            'video_link' => null,
-            'preview_video_link' => null,
-            'description' => $filmData['Plot'],
-            'directors' => $filmData['Director'],
-            'released' => (int) $filmData['Year'],
-            'run_time' => (int) $filmData['Runtime'],
-            'rating' => (float) $filmData['imbdRating'],
-            'scores_count' => (int) str_replace(',', '', $filmData['imdbVotes']),
-            'imdb_id' => $filmData['imdbID'],
-            'actors' => array_map('trim', explode(',', $filmData['Actors'])),
-            'genres' => array_map('trim', explode(',', $filmData['Genre']))
-        ];
+        return json_decode($response->getBody()->getContents(), true);
     }
 }

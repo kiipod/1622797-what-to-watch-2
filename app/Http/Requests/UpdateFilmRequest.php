@@ -77,7 +77,7 @@ class UpdateFilmRequest extends FormRequest
                 'string',
                 'max:1000'
             ],
-            'directors' => [
+            'director' => [
                 'string',
                 'max:255',
                 'regex:/^[A-Za-zА-Яа-яЁё\s]{2,50}$/u'
@@ -85,7 +85,7 @@ class UpdateFilmRequest extends FormRequest
             'actors' => [
                 'array'
             ],
-            'genre' => [
+            'genres' => [
                 'array'
             ],
             'run_time' => [

@@ -2,8 +2,11 @@
 
 namespace App\Jobs;
 
-use App\Services\GetFilmService;
-use GuzzleHttp\Exception\GuzzleException;
+use App\Dto\HtmlAcademyFilmDto;
+use App\Dto\OmdbFilmDto;
+use App\Repositories\Interfaces\HtmlAcademyApiRepositoryInterface;
+use App\Repositories\Interfaces\OmdbApiRepositoryInterface;
+use App\Services\FilmServices;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -33,14 +36,60 @@ class AddFilmJob implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @param GetFilmService $filmService
+     * @param HtmlAcademyApiRepositoryInterface $htmlAcademyApiRepository
+     * @param OmdbApiRepositoryInterface $omdbApiRepository
+     * @param FilmServices $filmServices
      * @return void
-     * @throws GuzzleException
      * @throws Throwable
      */
-    public function handle(GetFilmService $filmService): void
-    {
-        $filmData = $filmService->searchFilm($this->omdbId);
-        $filmService->saveFilm($filmData);
+    public function handle(
+        HtmlAcademyApiRepositoryInterface $htmlAcademyApiRepository,
+        OmdbApiRepositoryInterface $omdbApiRepository,
+        FilmServices $filmServices
+    ): void {
+        $omdbResponse = $omdbApiRepository->findFilmById($this->omdbId);
+
+        $filmInfo = (array)$omdbResponse['data'];
+        $emptyData = 'N/A';
+
+        $title = $filmInfo['Title'] ?? null;
+        $released = $filmInfo['Released'] ?? null;
+        $runTime = $filmInfo['Runtime'] ?? null;
+        $genres = $filmInfo['Genre'] ?? null;
+        $director = $filmInfo['Director'] ?? null;
+        $actors = $filmInfo['Actors'] ?? null;
+        $description = $filmInfo['Plot'] ?? null;
+        $posterImage = $filmInfo['Poster'] ?? null;
+        $rating = $filmInfo['imdbRating'] ?? null;
+        $scoresCount = $filmInfo['imdbVotes'] ?? null;
+
+        $omdbFilmApiDto = new OmdbFilmDto(
+            title: $title === $emptyData ? null : $title,
+            released: $released === $emptyData ? null : $released,
+            runTime: $runTime === $emptyData ? null : $runTime,
+            genres: $genres === $emptyData ? null : $genres,
+            director: $director === $emptyData ? null : $director,
+            actors: $actors === $emptyData ? null : $actors,
+            description: $description === $emptyData ? null : $description,
+            posterImage: $posterImage === $emptyData ? null : $posterImage,
+            rating: $rating === $emptyData ? null : $rating,
+            scoresCount: $scoresCount === $emptyData ? null : $scoresCount
+        );
+
+        $filmServices->saveFilmInfo($this->omdbId, $omdbFilmApiDto);
+
+        $htmlAcademyResponse = $htmlAcademyApiRepository->findFilmById($this->omdbId);
+
+        $additionalFilmInfo = (array)$htmlAcademyResponse['data'];
+
+        $htmlAcademyFilmDto = new HtmlAcademyFilmDto(
+            title: $additionalFilmInfo['name'] ?? null,
+            previewImage: $additionalFilmInfo['icon'] ?? null,
+            backgroundImage: $additionalFilmInfo['background'] ?? null,
+            videoLink: $additionalFilmInfo['video'] ?? null,
+            previewVideoLink: $additionalFilmInfo['preview'] ?? null
+        );
+
+        $filmServices->saveAdditionalFilmInfo($this->omdbId, $htmlAcademyFilmDto);
     }
 }

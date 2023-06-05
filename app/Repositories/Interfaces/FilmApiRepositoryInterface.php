@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\Interfaces;
+namespace App\Repositories\Interfaces;
 
-interface HttpClientInterface
+interface FilmApiRepositoryInterface
 {
     public function prepareRequest(string $omdbId);
 

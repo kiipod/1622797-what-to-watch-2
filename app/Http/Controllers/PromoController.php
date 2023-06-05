@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Responses\FailPageNotFound;
-use App\Http\Responses\Success;
+use App\Http\Responses\NotFoundResponse;
+use App\Http\Responses\SuccessResponse;
 use App\Services\FilmServices;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -11,38 +11,41 @@ use Throwable;
 class PromoController extends Controller
 {
     /**
+     * @param FilmServices $filmServices
+     */
+    public function __construct(private FilmServices $filmServices)
+    {
+    }
+
+    /**
      * Метод отвечает за получение Промо-фильма
      *
-     * @return FailPageNotFound|Success
+     * @return NotFoundResponse|SuccessResponse
      */
-    public function index(): FailPageNotFound|Success
+    public function index(): NotFoundResponse|SuccessResponse
     {
-        $filmServices = new FilmServices();
-
-        $promoFilm = $filmServices->getPromoFilm();
+        $promoFilm = $this->filmServices->getPromoFilm();
 
         if (!$promoFilm) {
-            return new FailPageNotFound();
+            return new NotFoundResponse();
         }
-        return new Success(data: $promoFilm);
+        return new SuccessResponse(data: $promoFilm);
     }
 
     /**
      * Метод отвечает за установку/снятие Промо-фильма
      *
      * @param int $filmId
-     * @return Success
+     * @return SuccessResponse
      * @throws Throwable
      */
-    public function store(int $filmId): Success
+    public function store(int $filmId): SuccessResponse
     {
-        $filmServices = new FilmServices();
-
-        $currentFilm = $filmServices->getFilmById($filmId);
+        $currentFilm = $this->filmServices->getFilmById($filmId);
 
         DB::beginTransaction();
         try {
-            if ($previousPromoFilm = $filmServices->getPromoFilm()) {
+            if ($previousPromoFilm = $this->filmServices->getPromoFilm()) {
                 $previousPromoFilm->update(['promo' => false]);
             }
 
@@ -50,7 +53,7 @@ class PromoController extends Controller
 
             DB::commit();
 
-            return new Success(data: $currentFilm);
+            return new SuccessResponse(data: $currentFilm);
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;

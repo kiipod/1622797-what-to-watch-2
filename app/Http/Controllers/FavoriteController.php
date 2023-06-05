@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Responses\FailAuth;
-use App\Http\Responses\Success;
+use App\Http\Responses\FailAuthResponse;
+use App\Http\Responses\SuccessResponse;
 use App\Services\FavoriteServices;
 use App\Services\FilmServices;
 use Illuminate\Support\Facades\Auth;
@@ -11,65 +11,70 @@ use Illuminate\Support\Facades\Auth;
 class FavoriteController extends Controller
 {
     /**
+     * @param FilmServices $filmServices
+     * @param FavoriteServices $favoriteServices
+     */
+    public function __construct(
+        private FilmServices $filmServices,
+        private FavoriteServices $favoriteServices
+    ) {
+    }
+
+    /**
      * Метод показывает все избранные фильмы пользователя
      *
-     * @return Success|FailAuth
+     * @return SuccessResponse|FailAuthResponse
      */
-    public function index(): Success|FailAuth
+    public function index(): SuccessResponse|FailAuthResponse
     {
-        $favoriteServices = new FavoriteServices();
         $user = Auth::user();
 
         if (!$user) {
-            return new FailAuth();
+            return new FailAuthResponse();
         }
 
         $userId = $user->id;
-        $favoriteFilms = $favoriteServices->getFavoriteFilms($userId);
-        return new Success(data: $favoriteFilms);
+        $favoriteFilms = $this->favoriteServices->getFavoriteFilms($userId);
+        return new SuccessResponse(data: $favoriteFilms);
     }
 
     /**
      * Метод отвечает за добавление фильма в список избранных
      *
      * @param int $filmId
-     * @return Success|FailAuth
+     * @return SuccessResponse|FailAuthResponse
      */
-    public function store(int $filmId): Success|FailAuth
+    public function store(int $filmId): SuccessResponse|FailAuthResponse
     {
-        $filmServices = new FilmServices();
-
-        $film = $filmServices->getFilmById($filmId);
+        $film = $this->filmServices->getFilmById($filmId);
         $user = Auth::user();
 
         if ($user->favorites()->where('film_id', '=', $filmId)->first() !== null) {
-            return new FailAuth();
+            return new FailAuthResponse();
         }
 
         $user->favorites()->attach($filmId);
 
-        return new Success(data: $film);
+        return new SuccessResponse(data: $film);
     }
 
     /**
      * Метод отвечает за удаление фильма из списка избранных
      *
      * @param int $filmId
-     * @return Success|FailAuth
+     * @return SuccessResponse|FailAuthResponse
      */
-    public function destroy(int $filmId): Success|FailAuth
+    public function destroy(int $filmId): SuccessResponse|FailAuthResponse
     {
-        $filmServices = new FilmServices();
-
-        $film = $filmServices->getFilmById($filmId);
+        $film = $this->filmServices->getFilmById($filmId);
         $user = Auth::user();
 
-        if ($user->favorites()->where('film_id', '=', $filmId)->first() === null) {
-            return new FailAuth();
+        if ($user->favorites()->where('film_id', '=', $film)->first() === null) {
+            return new FailAuthResponse();
         }
 
-        $user->favorites()->detach($filmId);
+        $user->favorites()->detach($film);
 
-        return new Success(data: ['Фильм удален из списка Избранных']);
+        return new SuccessResponse(data: ['Фильм удален из списка Избранных']);
     }
 }

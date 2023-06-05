@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\Genre;
 use Illuminate\Database\Eloquent\Model;
 
-class GenreUpdateServices
+class GenreServices
 {
     /**
      * Метод отвечает за обновление названия жанра

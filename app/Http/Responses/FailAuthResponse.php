@@ -4,20 +4,18 @@ namespace App\Http\Responses;
 
 use Symfony\Component\HttpFoundation\Response;
 
-class FailValidation extends Base
+class FailAuthResponse extends BaseResponse
 {
-    public int $statusCode = Response::HTTP_UNPROCESSABLE_ENTITY;
+    public int $statusCode = Response::HTTP_UNAUTHORIZED;
     protected string $message;
 
     /**
-     * @param $data
      * @param string $message
      * @param int $statusCode
      */
     public function __construct(
-        $data,
-        string $message = 'Переданные данные не корректны.',
-        int $statusCode = Response::HTTP_UNPROCESSABLE_ENTITY
+        string $message = 'Запрос требует аутентификации.',
+        int $statusCode = Response::HTTP_UNAUTHORIZED
     ) {
         $this->message = $message;
 
@@ -30,8 +28,7 @@ class FailValidation extends Base
     protected function makeResponseData(): ?array
     {
         return [
-            'message' => $this->message,
-            'errors' => $this->prepareData()
+            'message' => $this->message
         ];
     }
 }

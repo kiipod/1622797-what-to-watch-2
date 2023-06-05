@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Dto\FilmDto;
 use App\Http\Requests\AddFilmRequest;
 use App\Http\Requests\UpdateFilmRequest;
 use App\Http\Responses\NotFoundResponse;
@@ -95,7 +96,28 @@ class FilmController extends Controller
     public function update(UpdateFilmRequest $request, int $filmId): SuccessResponse
     {
         $film = Film::find($filmId);
-        $updatedFilm = $this->filmServices->updateFilmInfo($request->validated(), $film);
+
+        $params = $request->validated();
+
+        $filmDto = new FilmDto(
+            title: $params['title'] ?? null,
+            posterImage: $params['poster_image'] ?? null,
+            previewImage: $params['preview_image'] ?? null,
+            backgroundImage: $params['background_image'] ?? null,
+            backgroundColor: $params['background_color'] ?? null,
+            videoLink: $params['video_link'] ?? null,
+            previewVideoLink: $params['preview_video_link'] ?? null,
+            description: $params['description'] ?? null,
+            director: $params['director'] ?? null,
+            actors: $params['starring'] ?? null,
+            genres: $params['genre'] ?? null,
+            runTime: $params['run_time'] ?? null,
+            released: $params['released'] ?? null,
+            imdbId: $params['imdb_id'] ?? null,
+            status: $params['status'] ?? null
+        );
+
+        $updatedFilm = $this->filmServices->updateFilmInfo($filmDto, $film);
 
         return new SuccessResponse(data: $updatedFilm);
     }

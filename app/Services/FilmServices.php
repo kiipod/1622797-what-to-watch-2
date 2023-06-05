@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use App\Dto\FilmDto;
 use App\Dto\HtmlAcademyFilmDto;
 use App\Dto\OmdbFilmDto;
-use App\Http\Requests\UpdateFilmRequest;
 use App\Models\Actor;
 use App\Models\Film;
 use App\Models\Genre;
@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
@@ -143,27 +142,27 @@ class FilmServices
     /**
      * Метод отвечает за обновление информации о фильме
      *
-     * @param UpdateFilmRequest $request
+     * @param FilmDto $dto
      * @param Film $film
      * @return Film
      * @throws Throwable
      */
-    public function updateFilmInfo(UpdateFilmRequest $request, Film $film): Film
+    public function updateFilmInfo(FilmDto $dto, Film $film): Film
     {
         $film->fill([
-            'title' => $request->title,
-            'poster_image' => $request->poster_image,
-            'preview_image' => $request->preview_image,
-            'background_image' => $request->background_image,
-            'video_link' => $request->video_link,
-            'preview_video_link' => $request->preview_video_link,
-            'director' => $request->director,
-            'background_color' => $request->background_color,
-            'description' => $request->description,
-            'run_time' => $request->run_time,
-            'released' => $request->released,
-            'imdb_id' => $request->imdb_id,
-            'status' => $request->status,
+            'title' => $dto->title,
+            'poster_image' => $dto->posterImage,
+            'preview_image' => $dto->previewImage,
+            'background_image' => $dto->backgroundImage,
+            'video_link' => $dto->videoLink,
+            'preview_video_link' => $dto->previewVideoLink,
+            'director' => $dto->director,
+            'background_color' => $dto->backgroundColor,
+            'description' => $dto->description,
+            'run_time' => $dto->runTime,
+            'released' => $dto->released,
+            'imdb_id' => $dto->imdbId,
+            'status' => $dto->status
         ]);
 
         try {
@@ -171,8 +170,8 @@ class FilmServices
 
             $actorsId = [];
             $genresId = [];
-            $actors = $request->actors;
-            $genres = $request->genres;
+            $actors = $dto->actors;
+            $genres = $dto->genres;
 
             foreach ($actors as $actor) {
                 $actorsId[] = Actor::firstOrCreate(['name' => $actor])->id;

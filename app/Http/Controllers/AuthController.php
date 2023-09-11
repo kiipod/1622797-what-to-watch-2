@@ -24,7 +24,7 @@ class AuthController extends Controller
                 return new FailAuthResponse(trans('auth.failed'), Response::HTTP_UNAUTHORIZED);
             }
 
-            $user = Auth::user();
+            $user = $request->user();
             $token = $user->createToken('auth_token');
 
             return new SuccessResponse(data: [

@@ -18,17 +18,11 @@ class RegisterController extends Controller
     public function register(UserRequest $request): FailResponse|SuccessResponse
     {
         try {
-            $data = $request->validated();
-
-            if ($request->hasFile('avatar_url')) {
-                $avatar = $request->file('avatar_url');
-                $filename = $avatar->storeAs('public/avatars', 'public');
-                $data['avatar_url'] = $filename;
-            }
-
+            $data = $request->safe()->except('avatar_url');
             $data['password'] = Hash::make($data['password']);
+
             $user = User::create($data);
-            $token = $user->createToken('auth-token')->plainTextToken;
+            $token = $user->createToken('auth_token')->plainTextToken;
 
             return new SuccessResponse(data: [
                     'user' => $user,

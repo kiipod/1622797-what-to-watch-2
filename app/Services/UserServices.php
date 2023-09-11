@@ -52,7 +52,7 @@ class UserServices
             if ($oldAvatar) {
                 Storage::delete($oldAvatar);
             }
-            $filename = $newAvatar->store('public/avatars', 'public');
+            $filename = $newAvatar->store('public/avatars', 'local');
             $user['avatar_url'] = $filename;
         }
 

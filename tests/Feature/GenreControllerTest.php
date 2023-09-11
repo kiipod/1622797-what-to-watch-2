@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class GenreRouteTest extends TestCase
+class GenreControllerTest extends TestCase
 {
     use RefreshDatabase;
 

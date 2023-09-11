@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Queue;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
-class FilmRouteTest extends TestCase
+class FilmControllerTest extends TestCase
 {
     use RefreshDatabase;
 

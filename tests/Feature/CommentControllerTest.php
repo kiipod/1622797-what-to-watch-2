@@ -9,7 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
-class CommentRouteTest extends TestCase
+class CommentControllerTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -68,6 +68,11 @@ class CommentRouteTest extends TestCase
             ]);
     }
 
+    /**
+     * Метод проверяет работу роута get для комментариев для модератора
+     *
+     * @return void
+     */
     public function test_comment_get_route_by_moderator()
     {
         $film = Film::factory()
